@@ -29,7 +29,7 @@ Class Bunnymark Extends Window
 	Field lastMilli := Millisecs()
 	
 	Method New()
-		Super.New("Bunny Mark", VWIDTH, VHEIGHT, WindowFlags.Resizable )
+		Super.New("Bunnymark", VWIDTH, VHEIGHT, WindowFlags.Resizable )
 		For Local i:=0 Until bunnies.Length
 			bunnies[i] = New Bunny( 0, 0, images[ Floor( random.Rnd( 3 )) ] )
 		Next
