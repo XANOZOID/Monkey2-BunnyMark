@@ -15,13 +15,13 @@ A simple bunnymark to test the rendering capabilities of Monkey2.
 ___
 | Bunnies | AVG FPS | |
 | ------ | ------ | ------ |
-| 100 | 60 |  <img src="./readme.assets/bunnies100.png" width="700"> |
-| 500 | 60 |  <img src="./readme.assets/bunnies500.png" width="700"> |
-| 1000 | 60 | <img src="./readme.assets/bunnies1000.png" width="700"> |
-| 2000 | 60 | <img src="./readme.assets/bunnies2000.png" width="700"> |
-| 3000 | 60 | <img src="./readme.assets/bunnies3000.png" width="700"> |
-| 3400 | 58 | <img src="./readme.assets/bunnies3400.png" width="700"> |
-| 4000 | 49 | <img src="./readme.assets/bunnies4000.png" width="700"> |
+| 100 | 60 |  <img src="./readme.assets/bunnies100.png" width="450"> |
+| 500 | 60 |  <img src="./readme.assets/bunnies500.png" width="450"> |
+| 1000 | 60 | <img src="./readme.assets/bunnies1000.png" width="450"> |
+| 2000 | 60 | <img src="./readme.assets/bunnies2000.png" width="450"> |
+| 3000 | 60 | <img src="./readme.assets/bunnies3000.png" width="450"> |
+| 3400 | 58 | <img src="./readme.assets/bunnies3400.png" width="450"> |
+| 4000 | 49 | <img src="./readme.assets/bunnies4000.png" width="450"> |
 #### *System Specs for this test:*
 | spec | value |
 | ---- | ---- |
