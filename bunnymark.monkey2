@@ -20,7 +20,7 @@ Const VHEIGHT:=768
 Class Bunnymark Extends Window 
 	Field frames: Int = 1
 	Field elapsed: Int = 1
-	Field bunnies:Bunny[] = New Bunny[20]
+	Field bunnies:Bunny[] = New Bunny[100]
 	Field images:Image[] = New Image[]( 
 			Image.Load("asset::wabbit_alpha.png"),
 			Image.Load("asset::wabbit_alpha2.png"),
@@ -45,22 +45,23 @@ Class Bunnymark Extends Window
 			bunny.Draw(canvas)
 		Next
 		
-		elapsed += Millisecs() - lastMilli
-		Local avg :=  1000/( ( elapsed /frames) )
+		'elapsed += Millisecs() - lastMilli
+		'Local avg :=  1000/( ( elapsed /Float(frames)) ) '- not recquired anymore thanks to App.FPS
 		
 		canvas.Color = Color.White 
 		canvas.DrawRect( 0, 0, VWIDTH, 25 )
 		
 		canvas.Color = Color.Black
 		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",0,0)
-		canvas.DrawText(" FPS: " + avg, 300, 0 )
+		canvas.DrawText(" FPS: " + App.FPS, 300, 0 ) ' App.FPS suggested by abakobo
 		
-		frames += 1
-		If frames > 100 
+#rem	frames += 1		
+		If frames > 100 	' makeshift FPS counter not necessary
 			frames = 1
 			elapsed = 1
 		Endif 
 		lastMilli = Millisecs()
+#end 
 	End Method	
 	
 	Method OnMouseEvent( event:MouseEvent ) Override
@@ -69,8 +70,11 @@ Class Bunnymark Extends Window
 			If event.Button = MouseButton.Left
 				_len = 10
 			Elseif event.Button = MouseButton.Right
-				_len = 100
+				_len = 1000
+			Elseif event.Button = MouseButton.Middle
+				_len = -100	
 			End  
+			' Extra functionality ( RightButton / Middle ) added by @therevills
 			bunnies = bunnies.Resize( bunnies.Length + _len )
 			For Local i:=1 Until _len + 1
 			 bunnies[bunnies.Length-i] = New Bunny( Mouse.X, Mouse.Y, images[ Floor( random.Rnd( 4 )) ] )
