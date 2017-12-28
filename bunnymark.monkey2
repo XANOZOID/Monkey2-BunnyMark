@@ -22,6 +22,8 @@ Class Bunnymark Extends Window
 	Field elapsed: Int = 1
 	Field bunnies:Bunny[] = New Bunny[10000]
 	Field images:Image[] = New Image[]( 
+			Image.Load("asset::wabbit_alpha.png") )',
+'			Image.Load("asset::wabbit_alpha2.png"),
 '			Image.Load("asset::wabbit_alpha3.png"),
 '			Image.Load("asset::wabbit_alpha4.png") )
 	Field lastMilli := Millisecs()
@@ -36,6 +38,7 @@ Class Bunnymark Extends Window
 	
 	Method OnRender( canvas:Canvas ) Override
 		App.RequestRender() ' Activate this method 
+		
 		If Keyboard.KeyReleased(Key.Escape) Then App.Terminate()
 		
 		For Local bunny:=Eachin bunnies
@@ -43,23 +46,12 @@ Class Bunnymark Extends Window
 			bunny.Draw(canvas)
 		Next
 		
-		'elapsed += Millisecs() - lastMilli
-		'Local avg :=  1000/( ( elapsed /Float(frames)) ) '- not recquired anymore thanks to App.FPS
-		
 		canvas.Color = Color.White 
 		canvas.DrawRect( 0, 0, VWIDTH, 25 )
 		
 		canvas.Color = Color.Black
 		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",0,0)
 		canvas.DrawText(" FPS: " + App.FPS, 300, 0 ) ' App.FPS suggested by abakobo
-		
-#rem	frames += 1		
-		If frames > 100 	' makeshift FPS counter not necessary
-			frames = 1
-			elapsed = 1
-		Endif 
-		lastMilli = Millisecs()
-#end 
 	End Method	
 	
 	Method OnMouseEvent( event:MouseEvent ) Override
@@ -83,10 +75,8 @@ Class Bunnymark Extends Window
 End
 
 Class Bunny 
-	Field x: Float 
-	Field y: Float 
-	Field xspeed: Float
-	Field yspeed: Float 
+	Field pos:Vec2f
+	Field speed:Vec2f = New Vec2f
 	Field texture: Image
 	Global  gravity := 0.5
 	
@@ -102,18 +92,11 @@ Class Bunny
 		y += yspeed
 		x += xspeed
 		
-		If y >= VHEIGHT
-			y = VHEIGHT 
-			yspeed = -random.Rnd( 35 )
 		Endif 
-		If x < 0 Or x > VWIDTH 
-			xspeed *= -1
-			x = Clamp(x, 0.0, Float(VWIDTH)	 )
 		Endif 
 	End
 	
 	Method Draw(canvas:Canvas)
-		canvas.DrawImage( texture, x, y )
 	End	
 End
 
