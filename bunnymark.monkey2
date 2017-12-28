@@ -20,18 +20,16 @@ Const VHEIGHT:=768
 Class Bunnymark Extends Window 
 	Field frames: Int = 1
 	Field elapsed: Int = 1
-	Field bunnies:Bunny[] = New Bunny[100]
+	Field bunnies:Bunny[] = New Bunny[10000]
 	Field images:Image[] = New Image[]( 
-			Image.Load("asset::wabbit_alpha.png"),
-			Image.Load("asset::wabbit_alpha2.png"),
-			Image.Load("asset::wabbit_alpha3.png"),
-			Image.Load("asset::wabbit_alpha4.png") )
+'			Image.Load("asset::wabbit_alpha3.png"),
+'			Image.Load("asset::wabbit_alpha4.png") )
 	Field lastMilli := Millisecs()
 	
 	Method New()
 		Super.New("Bunnymark", VWIDTH, VHEIGHT, WindowFlags.Resizable )
 		For Local i:=0 Until bunnies.Length
-			bunnies[i] = New Bunny( 0, 0, images[ Floor( random.Rnd( 3 )) ] )
+			bunnies[i] = New Bunny( 0, 0, images[ Floor( random.Rnd( images.Length )) ] )
 		Next
 		
 	End
@@ -77,7 +75,7 @@ Class Bunnymark Extends Window
 			' Extra functionality ( RightButton / Middle ) added by @therevills
 			bunnies = bunnies.Resize( bunnies.Length + _len )
 			For Local i:=1 Until _len + 1
-			 bunnies[bunnies.Length-i] = New Bunny( Mouse.X, Mouse.Y, images[ Floor( random.Rnd( 4 )) ] )
+			 bunnies[bunnies.Length-i] = New Bunny( Mouse.X, Mouse.Y, images[ Floor( random.Rnd( images.Length  )) ] )
 			End
 		End 	
 	End Method	
