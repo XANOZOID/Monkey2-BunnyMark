@@ -12,48 +12,41 @@ Using std..
 Using mojo..
 Using tinyxml2..
 
+Global images := New Stack<Image>
 
-Const VWIDTH:=1024
-Const VHEIGHT:=768
+Function GrabImage:Image( sourceImage:Image, el:XMLElement )
+	Local left 	 := Int( el.Attribute("x") )
+	Local top  	 := Int( el.Attribute("y") )
+	Local width	 := Int( el.Attribute("w") )
+	Local height := Int( el.Attribute("h") )
+	Return New Image( sourceImage, New Recti( left, top, left + width, top + height ))
+End
 
 Class Bunnymark Extends Window 
-	Field frames: Int = 1
-	Field elapsed: Int = 1
-	Field bunnies:Bunny[] = New Bunny[0]
-	Field images:Image[]
-	Field lastMilli := Millisecs()
+	Const BUNNY_AMT := 1000
+	Field bunnies := New Stack<Bunny>
 	
 	Method New()
-		Super.New("Bunnymark", VWIDTH, VHEIGHT, WindowFlags.Resizable )
+		Super.New("Bunnymark", 1024, 768, WindowFlags.Resizable )
 		
 		LoadAtlas()
 
-		For Local i:=0 Until bunnies.Length
-			bunnies[i] = New Bunny( 0, 0, images[ Floor( random.Rnd( images.Length )) ] )
+		For Local i:=0 Until BUNNY_AMT
+			bunnies.Push( New Bunny( 0, 0 ) )
 		Next
-		
 	End
 	
 	Method LoadAtlas()
 		Local atlasPng := Image.Load("asset::atlas.png")
 		
-		Local xml := LoadString("asset::atlas.xml")
 		Local doc := New XMLDocument()
-		If doc.Parse(xml) <> XMLError.XML_SUCCESS Then 
-			Print "Failed to parse embedded XML!"
-			Return
-		Endif		
-		
-		' load in all images ...
-		images = New Image[4]
-		Local atlasNode := doc.FirstChild().NextSiblingElement()
-		Local imgEl := atlasNode.FirstChildElement()
-		Local i := 0
-		While imgEl <> Null 
-			images[i] = GrabImage( atlasPng, imgEl )
-			imgEl = imgEl.NextSiblingElement()
-			i += 1
-		Wend	
+		If doc.Parse( LoadString("asset::atlas.xml") ) = XMLError.XML_SUCCESS
+			Local imgEl := doc.LastChild().FirstChildElement()
+			While imgEl <> Null 
+				images.Push( GrabImage( atlasPng, imgEl ) )
+				imgEl = imgEl.NextSiblingElement()
+			Wend
+		Endif			
 	End
 	
 	Method OnRender( canvas:Canvas ) Override
@@ -67,30 +60,26 @@ Class Bunnymark Extends Window
 		Next
 		
 		canvas.Color = Color.White 
-		canvas.DrawRect( 0, 0, VWIDTH, 25 )
+		canvas.DrawRect( 0, 0, App.ActiveWindow.Width, 25 )
 		
 		canvas.Color = Color.Black
 		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",0,0)
 		canvas.DrawText(" FPS: " + App.FPS, 300, 0 ) ' App.FPS suggested by abakobo
-	End Method	
+	End
 	
 	Method OnMouseEvent( event:MouseEvent ) Override
-		If event.Type = EventType.MouseDown
+		If event.Type = EventType.MouseDown Then 
 			Local _len := 0 
-			If event.Button = MouseButton.Left
-				_len = 10
-			Elseif event.Button = MouseButton.Right
-				_len = 1000
-			Elseif event.Button = MouseButton.Middle
-				_len = -100	
-			End  
-			' Extra functionality ( RightButton / Middle ) added by @therevills
-			bunnies = bunnies.Resize( bunnies.Length + _len )
-			For Local i:=1 Until _len + 1
-			 bunnies[bunnies.Length-i] = New Bunny( Mouse.X, Mouse.Y, images[ Floor( random.Rnd( images.Length  )) ] )
+			Select event.Button
+				Case MouseButton.Left 	_len = 10
+				Case MouseButton.Right 	_len = 1000
+				Case MouseButton.Middle _len = -100
 			End
-		End 	
-	End Method	
+			For Local i:=0 Until Abs(_len)
+			 	If _len > 0 bunnies.Push(New Bunny( Mouse.X, Mouse.Y )) Else bunnies.Pop()
+			End
+		Endif 	
+	End
 
 End
 
@@ -100,9 +89,9 @@ Class Bunny
 	Field texture: Image
 	Global gravity := 0.5
 	
-	Method New( x: Float, y: Float, _texture:Image )
+	Method New( x: Float, y: Float )
 		pos = New Vec2f( x, y )
-		texture = _texture
+		texture = images[ Floor( random.Rnd( images.Length  ))]
 		speed.x = random.Rnd( 20 ) - 10
 	End
 	
@@ -110,27 +99,20 @@ Class Bunny
 		speed.y += gravity
 		pos += speed
 		
-		If pos.y >= VHEIGHT Then 
-			pos.y = VHEIGHT 
+		If pos.y >= App.ActiveWindow.Height Then 
+			pos.y = App.ActiveWindow.Height 
 			speed.y = -random.Rnd( 35 )
 		Endif 
-		If pos.x < 0 Or pos.x > VWIDTH Then 
+		
+		If pos.x < 0 Or pos.x > App.ActiveWindow.Width Then 
 			speed.x *= -1
-			pos.x = Clamp( pos.x, 0.0, Float(VWIDTH))
+			pos.x = Clamp( pos.x, 0.0, Float(App.ActiveWindow.Width))
 		Endif 
 	End
 	
 	Method Draw(canvas:Canvas)
 		canvas.DrawImage( texture, pos )
 	End	
-End
-
-Function GrabImage:Image( sourceImage:Image, el:XMLElement )
-	Local left 	 := Int( el.Attribute("x") )
-	Local top  	 := Int( el.Attribute("y") )
-	Local width	 := Int( el.Attribute("w") )
-	Local height := Int( el.Attribute("h") )
-	Return New Image( sourceImage, New Recti( left, top, left + width, top + height ))
 End
 
 
