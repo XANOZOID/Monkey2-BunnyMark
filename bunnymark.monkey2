@@ -1,17 +1,16 @@
 Namespace bunnies
 
 ' Load up the assets
-
-#Import "assets/wabbit_alpha.png"
-#Import "assets/wabbit_alpha2.png"
-#Import "assets/wabbit_alpha3.png"
-#Import "assets/wabbit_alpha4.png"
+#Import "assets/atlas.png"
+#Import "assets/atlas.xml"
 
 ' Load up imports
 #Import "<std>"
 #Import "<mojo>"
+#Import "<tinyxml2>"
 Using std..
 Using mojo..
+Using tinyxml2..
 
 
 Const VWIDTH:=1024
@@ -20,20 +19,41 @@ Const VHEIGHT:=768
 Class Bunnymark Extends Window 
 	Field frames: Int = 1
 	Field elapsed: Int = 1
-	Field bunnies:Bunny[] = New Bunny[10000]
-	Field images:Image[] = New Image[]( 
-			Image.Load("asset::wabbit_alpha.png") )',
-'			Image.Load("asset::wabbit_alpha2.png"),
-'			Image.Load("asset::wabbit_alpha3.png"),
-'			Image.Load("asset::wabbit_alpha4.png") )
+	Field bunnies:Bunny[] = New Bunny[0]
+	Field images:Image[]
 	Field lastMilli := Millisecs()
 	
 	Method New()
 		Super.New("Bunnymark", VWIDTH, VHEIGHT, WindowFlags.Resizable )
+		
+		LoadAtlas()
+
 		For Local i:=0 Until bunnies.Length
 			bunnies[i] = New Bunny( 0, 0, images[ Floor( random.Rnd( images.Length )) ] )
 		Next
 		
+	End
+	
+	Method LoadAtlas()
+		Local atlasPng := Image.Load("asset::atlas.png")
+		
+		Local xml := LoadString("asset::atlas.xml")
+		Local doc := New XMLDocument()
+		If doc.Parse(xml) <> XMLError.XML_SUCCESS Then 
+			Print "Failed to parse embedded XML!"
+			Return
+		Endif		
+		
+		' load in all images ...
+		images = New Image[4]
+		Local atlasNode := doc.FirstChild().NextSiblingElement()
+		Local imgEl := atlasNode.FirstChildElement()
+		Local i := 0
+		While imgEl <> Null 
+			images[i] = GrabImage( atlasPng, imgEl )
+			imgEl = imgEl.NextSiblingElement()
+			i += 1
+		Wend	
 	End
 	
 	Method OnRender( canvas:Canvas ) Override
@@ -104,6 +124,15 @@ Class Bunny
 		canvas.DrawImage( texture, pos )
 	End	
 End
+
+Function GrabImage:Image( sourceImage:Image, el:XMLElement )
+	Local left 	 := Int( el.Attribute("x") )
+	Local top  	 := Int( el.Attribute("y") )
+	Local width	 := Int( el.Attribute("w") )
+	Local height := Int( el.Attribute("h") )
+	Return New Image( sourceImage, New Recti( left, top, left + width, top + height ))
+End
+
 
 Function Main()
 	New AppInstance
