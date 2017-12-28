@@ -78,25 +78,30 @@ Class Bunny
 	Field pos:Vec2f
 	Field speed:Vec2f = New Vec2f
 	Field texture: Image
-	Global  gravity := 0.5
+	Global gravity := 0.5
 	
-	Method New( x: Float, y: Float, texture:Image )
-		Self.x = x
-		Self.y = y
-		Self.texture = texture
-		xspeed = random.Rnd( 10 )
+	Method New( x: Float, y: Float, _texture:Image )
+		pos = New Vec2f( x, y )
+		texture = _texture
+		speed.x = random.Rnd( 20 ) - 10
 	End
 	
 	Method Update:Void( )
-		yspeed += gravity 
-		y += yspeed
-		x += xspeed
+		speed.y += gravity
+		pos += speed
 		
+		If pos.y >= VHEIGHT Then 
+			pos.y = VHEIGHT 
+			speed.y = -random.Rnd( 35 )
 		Endif 
+		If pos.x < 0 Or pos.x > VWIDTH Then 
+			speed.x *= -1
+			pos.x = Clamp( pos.x, 0.0, Float(VWIDTH))
 		Endif 
 	End
 	
 	Method Draw(canvas:Canvas)
+		canvas.DrawImage( texture, pos )
 	End	
 End
 
