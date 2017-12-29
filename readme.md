@@ -9,12 +9,17 @@ A simple bunnymark to test the rendering capabilities of Monkey2.
 - include an atlas project file for the program "texture packer"
 - minor code improvements + suggestions (thanks Ethernaut for forked repo)
 
+<br/><br/>
+<br/><br/>
+
 # Structure
 
 - OOP Design
 - Bunnymark is a controller which handles update, drawing, and mouse input
 - **CONTROLS** Left click: 10 bunnies, Right click: 1000 bunnies, middle click -1000 bunnnies
 - The Bunnyclass simply holds position, velocities, textures, and handles bounce logic.
+
+<br/><br/>
 
 # Contribution
 ____
