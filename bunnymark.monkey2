@@ -12,8 +12,10 @@ Using std..
 Using mojo..
 Using tinyxml2..
 
-Global images := New Stack<Image>
+Global images := New Stack<Image> ' all images extend a base image
+Global singleTextureMode := False ' uses only one image for all, recommended by Mark Sibly
 
+' Inspired by planiax's code
 Function GrabImage:Image( sourceImage:Image, el:XMLElement )
 	Local left 	 := Int( el.Attribute("x") )
 	Local top  	 := Int( el.Attribute("y") )
@@ -24,12 +26,12 @@ End
 
 Class Bunnymark Extends Window 
 	Const BUNNY_AMT := 1000
-	Field bunnies := New Stack<Bunny>
+	Field bunnies := New Stack<Bunny> ' helped from DoctorWhoof (Ethernaut)
 	
 	Method New()
 		Super.New("Bunnymark", 1024, 768, WindowFlags.Resizable )
 		
-		LoadAtlas()
+		LoadAtlas() ' Atlas recommended by Mark Sibly
 
 		For Local i:=0 Until BUNNY_AMT
 			bunnies.Push( New Bunny( 0, 0 ) )
@@ -52,8 +54,6 @@ Class Bunnymark Extends Window
 	Method OnRender( canvas:Canvas ) Override
 		App.RequestRender() ' Activate this method 
 		
-		If Keyboard.KeyReleased(Key.Escape) Then App.Terminate()
-		
 		For Local bunny:=Eachin bunnies
 			bunny.Update()
 			bunny.Draw(canvas)
@@ -65,6 +65,18 @@ Class Bunnymark Extends Window
 		canvas.Color = Color.Black
 		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",0,0)
 		canvas.DrawText(" FPS: " + App.FPS, 300, 0 ) ' App.FPS suggested by abakobo
+		canvas.DrawText("Single Textured("+singleTextureMode+") - space" , 400, 0  )
+	End
+	
+	Method OnKeyEvent( event:KeyEvent ) Override
+		Select event.Key
+			Case Key.Escape App.Terminate()
+			Case Key.Space 
+				singleTextureMode = Not singleTextureMode
+				For Local bunny:=Eachin bunnies
+					 bunny.UpdateTexture()
+				Next	
+		End
 	End
 	
 	Method OnMouseEvent( event:MouseEvent ) Override
@@ -91,8 +103,13 @@ Class Bunny
 	
 	Method New( x: Float, y: Float )
 		pos = New Vec2f( x, y )
-		texture = images[ Floor( random.Rnd( images.Length  ))]
 		speed.x = random.Rnd( 20 ) - 10
+		UpdateTexture()
+	End
+	
+	Method UpdateTexture()
+		' inspired by DoctorWhoof (Ethernaut)
+		texture = singleTextureMode? images[0] Else images[Rnd( images.Length)]
 	End
 	
 	Method Update:Void( )
